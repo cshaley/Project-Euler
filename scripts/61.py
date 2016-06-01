@@ -9,6 +9,15 @@ t = time.time()
 def meets_conditions(x):
     return(x < 10000 and x >= 1000 and x%100 >= 10)
 
+# Get digits 3 onward of number
+def back(x):
+    return int(str(x)[2:])
+
+# Get front two digits of number
+def front(x):
+    return int(str(x)[0:2])
+
+
 triangles = [x*(x+1)/2 for x in range(200) if meets_conditions(x*(x+1)/2)]
 squares = [x**2 for x in range(200) if meets_conditions(x**2)]
 pentagonals = [x*(3*x-1)/2 for x in range(200) if meets_conditions(x*(3*x-1)/2)]
@@ -29,29 +38,36 @@ for s in sets:
             fs[num] = a
     fronts.append(fs)
 
-# Beautiful, deep, nested for loop/if statements.
-for order in itertools.permutations(range(6), 6):
-    for firstnum in sets[order[0]]:
-        firstnumback = int(str(firstnum)[2:])
-        firstnumfront = int(str(firstnum)[0:2])
-        if firstnumback in fronts[order[1]]:
-            for secondnum in fronts[order[1]][firstnumback]:
-                secondnumback = int(str(secondnum)[2:])
-                if secondnumback in fronts[order[2]]:
-                    for thirdnum in fronts[order[2]][secondnumback]:
-                        thirdnumback = int(str(thirdnum)[2:])
-                        if thirdnumback in fronts[order[3]]:
-                            for fourthnum in fronts[order[3]][thirdnumback]:
-                                fourthnumback = int(str(fourthnum)[2:])
-                                if fourthnumback in fronts[order[4]]:
-                                    for fifthnum in fronts[order[4]][fourthnumback]:
-                                        fifthnumback = int(str(fifthnum)[2:])
-                                        if fifthnumback in fronts[order[5]]:
-                                            for sixthnum in fronts[order[5]][fifthnumback]:
-                                                sixthnumback = int(str(sixthnum)[2:])
-                                                if sixthnumback == firstnumfront:
-                                                    print('Numbers: {0}, {1}, {2}, {3}, {4}, {5}\n').\
-                                                        format(firstnum, secondnum, thirdnum, fourthnum, fifthnum, sixthnum)
-                                                    print('SUM: {}').format(sum([firstnum, secondnum, thirdnum, fourthnum, fifthnum, sixthnum]))
-                                                    print('TIME: {}').format(time.time()-t)
-                                                    sys.exit(0)
+
+def recurse(sets, fronts, order, orderind=0, numbacklist=None):
+    if numbacklist is None:
+        numbacklist = []
+        for firstnum in sets[order[orderind]]:
+            firstnumback = back(firstnum)
+            if firstnumback in fronts[order[orderind+1]]:
+                ret = recurse(sets, fronts, order, orderind+1, numbacklist=[firstnum])
+                if ret is not None:
+                    return ret
+    else:
+        if orderind == 5:
+            firstnumfront = front(numbacklist[0])
+            for sixthnum in fronts[order[orderind]][back(numbacklist[-1])]:
+                sixthnumback = back(sixthnum)
+                if firstnumfront == sixthnumback:
+                    numbacklist.append(sixthnum)
+                    return numbacklist
+        else:
+            for midnum in fronts[order[orderind]][back(numbacklist[-1])]:
+                midnumback = back(midnum)
+                if midnumback in fronts[order[orderind+1]]:
+                    return recurse(sets, fronts, order, orderind+1, numbacklist=numbacklist+[midnum])
+    return None
+
+if __name__ == '__main__':
+    for order in itertools.permutations(range(6), 6):
+        x = recurse(sets, fronts, order, orderind=0, numbacklist=None)
+        if x:
+            print('Numbers: {}').format(x)
+            print('SUM: {}').format(sum(x))
+            print('TIME: {}').format(time.time()-t)
+            break
