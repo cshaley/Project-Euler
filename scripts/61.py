@@ -39,17 +39,17 @@ for s in sets:
     fronts.append(fs)
 
 
-def recurse(sets, fronts, order, orderind=0, numbacklist=None):
+def recurse(sets, fronts, order, orderind=0, numbacklist=None, maxlen=6):
     if numbacklist is None:
         numbacklist = []
         for firstnum in sets[order[orderind]]:
             firstnumback = back(firstnum)
             if firstnumback in fronts[order[orderind+1]]:
-                ret = recurse(sets, fronts, order, orderind+1, numbacklist=[firstnum])
+                ret = recurse(sets, fronts, order, orderind+1, numbacklist=[firstnum], maxlen=maxlen)
                 if ret is not None:
                     return ret
     else:
-        if orderind == 5:
+        if orderind == maxlen-1:
             firstnumfront = front(numbacklist[0])
             for sixthnum in fronts[order[orderind]][back(numbacklist[-1])]:
                 sixthnumback = back(sixthnum)
@@ -60,12 +60,12 @@ def recurse(sets, fronts, order, orderind=0, numbacklist=None):
             for midnum in fronts[order[orderind]][back(numbacklist[-1])]:
                 midnumback = back(midnum)
                 if midnumback in fronts[order[orderind+1]]:
-                    return recurse(sets, fronts, order, orderind+1, numbacklist=numbacklist+[midnum])
+                    return recurse(sets, fronts, order, orderind+1, numbacklist=numbacklist+[midnum], maxlen=maxlen)
     return None
 
 if __name__ == '__main__':
     for order in itertools.permutations(range(6), 6):
-        x = recurse(sets, fronts, order, orderind=0, numbacklist=None)
+        x = recurse(sets, fronts, order, orderind=0, numbacklist=None, maxlen=6)
         if x:
             print('Numbers: {}').format(x)
             print('SUM: {}').format(sum(x))
