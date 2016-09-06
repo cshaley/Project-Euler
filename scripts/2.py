@@ -1,5 +1,4 @@
 #Euler Project #2
-# This solution is horribly, horribly slow.  It needs to be redone.
 x=[1,1,2]
 sum1=2
 while x[2]<4000000:
